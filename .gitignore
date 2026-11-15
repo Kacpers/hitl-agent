@@ -1,0 +1,12 @@
+log.jsonl
+tool_log.jsonl
+approvals.json
+draft.txt
+placeholders.json
+drafts/
+sent/
+complaints.csv
+STOP
+__pycache__/
+.pytest_cache/
+.venv/

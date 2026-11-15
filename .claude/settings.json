@@ -1,0 +1,101 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./data/customers/**)",
+      "Read(./data/mail/**)",
+      "Read(./placeholders.json)",
+      "Read(./drafts/**)",
+      "Read(./sent/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--no-project",
+              "--quiet",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/kill_switch.py"
+            ],
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--no-project",
+              "--quiet",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block_send.py"
+            ],
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*create_draft",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--no-project",
+              "--quiet",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/amount_guard.py"
+            ],
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--no-project",
+              "--quiet",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/block_network.py"
+            ],
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv",
+            "args": [
+              "run",
+              "--no-project",
+              "--quiet",
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/log_tools.py"
+            ],
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mailbox": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--quiet",
+        "mailbox.py"
+      ]
+    }
+  }
+}

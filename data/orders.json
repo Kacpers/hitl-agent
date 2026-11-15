@@ -1,0 +1,5 @@
+{
+ "Z-1042": {"customer": "Firma Testowa 2", "amount": 480.0, "status": "delivered", "date": "2026-11-03"},
+ "Z-1077": {"customer": "Firma Testowa 5", "amount": 1290.0, "status": "delivered", "date": "2026-11-05"},
+ "Z-1103": {"customer": "Firma Testowa 7", "amount": 89.9, "status": "in_transit", "date": "2026-11-12"}
+}
