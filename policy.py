@@ -14,13 +14,15 @@ APPROVALS = ROOT / "approvals.json"          # approvals given by a human: finge
 
 # EXERCISE 2
 def policy(tool: str, args: dict) -> tuple[str, str]:
-    """Exercise 2. Return (AUTO | HUMAN | DENY, reason). Code decides, not the model.
-    - delete_customer_data: always DENY,
-    - refund_payment: DENY if the order does not exist or amount > ORDERS[order_id]["amount"]; otherwise HUMAN,
-    - everything else: AUTO.
-    Check: uv run pytest -m cw2
-    """
-    raise NotImplementedError("Exercise 2: write policy()")
+    """Returns (AUTO | HUMAN | DENY, reason). Code decides, not the model."""
+    if tool == "delete_customer_data":
+        return "DENY", "only a human deletes customer data"
+    if tool == "refund_payment":
+        order = ORDERS.get(args["order_id"])
+        if not order or args["amount"] > order["amount"]:
+            return "DENY", "amount is higher than the order value"
+        return "HUMAN", "a refund needs a human approval"
+    return "AUTO", ""
 # END OF EXERCISE 2
 
 
