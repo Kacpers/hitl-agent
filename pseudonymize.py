@@ -56,19 +56,33 @@ def people(text: str) -> list[str]:
 
 # EXERCISE 1
 def mask(text: str) -> tuple[str, dict]:
-    """Exercise 1a. Return (text with placeholders, map placeholder -> original) before the text reaches the model.
-    - people and addresses from contacts() (fields "person", "address") -> [PERSON_1], [ADDRESS_1],
-    - other people found by people(text) (Presidio) -> [PERSON_n],
-    - PATTERNS (e-mail, IBAN, PESEL, phone) -> [EMAIL_1], [IBAN_1], ...
-    The same value must get the same placeholder. The order id and the amount stay.
-    Check: uv run pytest -m cw1
-    """
-    raise NotImplementedError("Exercise 1a: write mask()")
+    """Returns (text with placeholders, map placeholder -> original). The same value always gets the same placeholder."""
+    mapping: dict[str, str] = {}
+
+    def placeholder(kind: str, value: str) -> str:
+        for key, known in mapping.items():
+            if known == value:
+                return key
+        key = f"[{kind}_{sum(k.startswith(f'[{kind}_') for k in mapping) + 1}]"
+        mapping[key] = value
+        return key
+
+    for customer in contacts():                      # 1. known customers from the CRM export
+        for kind in ("person", "address"):
+            if customer[kind] and customer[kind] in text:
+                text = text.replace(customer[kind], placeholder(kind.upper(), customer[kind]))
+    for person in people(text):                      # 2. anyone else named in the mail (Presidio)
+        text = text.replace(person, placeholder("PERSON", person))
+    for kind, pattern in PATTERNS:                   # 3. e-mail, IBAN, PESEL, phone
+        text = re.sub(pattern, lambda m: placeholder(kind, m[0]), text)
+    return text, mapping
 
 
 def unmask(text: str, mapping: dict) -> str:
-    """Exercise 1b. Placeholders back to data (code does it when the draft goes to a human)."""
-    raise NotImplementedError("Exercise 1b: write unmask()")
+    """The reverse of mask(): placeholders back to data. Code does it when the draft goes to a human."""
+    for key, value in mapping.items():
+        text = text.replace(key, value)
+    return text
 # END OF EXERCISE 1
 
 
