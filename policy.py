@@ -28,21 +28,23 @@ def policy(tool: str, args: dict) -> tuple[str, str]:
 
 # EXERCISE 3
 def canonical(value):
-    """Numbers become strings with two decimals (480 and 480.0 are the same money). Other values stay."""
+    """480, 480.0 and "480.00" are the same money: numbers become strings with two decimals before hashing."""
     if type(value) in (int, float):      # bool stays bool
         return f"{value:.2f}"
     return value
 
 
 def fingerprint(tool: str, args: dict) -> str:
-    """Exercise 3a. Fingerprint of an action: sha256 of [tool, args with canonical() values] (json.dumps with sort_keys=True),
-    first 12 chars. One grosz more must give a different fingerprint; 480 and 480.0 must give the same one."""
-    raise NotImplementedError("Exercise 3a: write fingerprint()")
+    """The approval covers this action with these arguments: one grosz more is a different fingerprint."""
+    args = {k: canonical(v) for k, v in args.items()}
+    return hashlib.sha256(json.dumps([tool, args], sort_keys=True).encode()).hexdigest()[:12]
 
 
 def consume_approval(fp: str) -> str | None:
-    """Exercise 3b. Approvals live in the APPROVALS file (dict fingerprint -> who). If fp is approved:
-    remove it from the file (an approval is single-use) and return who approved it. Otherwise return None.
-    Check: uv run pytest -m cw3"""
-    raise NotImplementedError("Exercise 3b: write consume_approval()")
+    """If a human approved fp: remove the approval (it is single-use) and return who approved it."""
+    approvals = json.loads(APPROVALS.read_text()) if APPROVALS.exists() else {}
+    who = approvals.pop(fp, None)
+    if who:
+        APPROVALS.write_text(json.dumps(approvals, indent=1))
+    return who
 # END OF EXERCISE 3
