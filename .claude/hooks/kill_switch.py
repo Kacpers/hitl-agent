@@ -6,8 +6,9 @@ import pathlib
 
 # EXERCISE 5
 def decision(project: pathlib.Path) -> dict | None:
-    """Exercise 5. If the project folder has a STOP file, return a deny (permissionDecision "deny")
-    with the reason "Kill switch: STOP file present. Doing nothing.". Otherwise return None. Check: uv run pytest -m cw5"""
+    if (project / "STOP").exists():
+        return {"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
+                                       "permissionDecisionReason": "Kill switch: STOP file present. Doing nothing."}}
     return None
 # END OF EXERCISE 5
 
