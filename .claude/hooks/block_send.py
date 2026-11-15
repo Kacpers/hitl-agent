@@ -7,14 +7,19 @@ import re
 import sys
 
 # EXERCISE 4
-RULES = []  # Exercise 4: (pattern for the tool name after "mcp__server__", reason) for sending, deleting and publishing
+RULES = [  # (pattern for the tool name after "mcp__server__", reason)
+    (r"(^|_)(send|reply|forward)", "Sending is blocked. Prepare a draft with create_draft. A human sends it."),
+    (r"(^|_)(delete|trash|remove)", "Deleting is blocked. Tell the human what you propose to delete and why."),
+    (r"(^|_)(publish|execute)", "Publishing to a live system is blocked. Leave it to a human."),
+]
 
 
 def decision(tool_name: str) -> dict | None:
-    """Exercise 4. For MCP tools that send (send, reply, forward), delete (delete, trash, remove)
-    or publish (publish, execute), return {"hookSpecificOutput": {"hookEventName": "PreToolUse",
-    "permissionDecision": "deny", "permissionDecisionReason": reason}}. Return None for anything else.
-    Note: untrash_message and unpublish_workflow must pass. Check: uv run pytest -m cw4"""
+    part = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", tool_name.split("__")[-1]).replace("-", "_").lower()
+    for pattern, reason in RULES:
+        if tool_name.startswith("mcp__") and re.search(pattern, part):
+            return {"hookSpecificOutput": {"hookEventName": "PreToolUse",
+                                           "permissionDecision": "deny", "permissionDecisionReason": reason}}
     return None
 # END OF EXERCISE 4
 
